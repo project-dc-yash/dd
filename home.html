@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeHostel AI | JSPM Narhe Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #00d2ff; --secondary: #3a7bd5; --dark: #0f172a; --glass: rgba(255, 255, 255, 0.05); }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--dark); color: white; display: flex; height: 100vh; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar { width: 260px; background: #000; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 20px; }
+        .logo { font-size: 22px; font-weight: 600; margin-bottom: 40px; color: var(--primary); text-align: center; }
+        .nav-item { padding: 12px; margin-bottom: 10px; cursor: pointer; border-radius: 8px; color: #888; transition: 0.3s; }
+        .nav-item.active { background: var(--primary); color: #000; font-weight: 600; }
+
+        /* MAIN SECTION */
+        .main-content { flex: 1; display: flex; flex-direction: column; }
+        
+        /* NAVBAR */
+        .navbar { height: 70px; background: #111; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; border-bottom: 1px solid #333; }
+        .status { font-size: 13px; color: #00ff00; border: 1px solid #00ff00; padding: 4px 10px; border-radius: 20px; }
+
+        .dashboard { padding: 20px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; flex-grow: 1; }
+
+        /* AI CAMERA BOX */
+        .camera-card { background: #1e293b; border-radius: 20px; padding: 20px; border: 1px solid #334155; position: relative; }
+        .video-box { width: 100%; height: 380px; background: #000; border-radius: 15px; overflow: hidden; position: relative; border: 2px solid #333; }
+        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        
+        /* SCANNING ANIMATION */
+        .scanner-line { position: absolute; width: 100%; height: 3px; background: var(--primary); box-shadow: 0 0 15px var(--primary); top: 0; animation: scanMove 3s infinite linear; z-index: 5; }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
+
+        /* DATASET BOX */
+        .dataset-card { background: #1e293b; border-radius: 20px; padding: 20px; border: 1px solid #334155; }
+        .student-list { margin-top: 20px; }
+        .student-item { display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #333; }
+        .student-item img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary); }
+        
+        /* MATCHED NOTIFICATION */
+        #matchDisplay { display: none; margin-top: 20px; animation: fadeIn 0.5s; text-align: center; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .btn-open { width: 100%; background: linear-gradient(to right, #00d2ff, #3a7bd5); border: none; padding: 15px; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo">SafeHostel AI</div>
+    <a href="index.html" class="nav-item">Gate Terminal</a>
+    <a href="#" class="nav-item active">JSPM Records</a>
+    <a href="Hardware.html" class="nav-item">Hardware: Pi/Arduino</a>
+</aside>
+    <div class="main-content">
+        <nav class="navbar">
+            <div>JSPM Narhe Girls Hostel | <strong>Smart Security</strong></div>
+            <div class="status">System: Online</div>
+        </nav>
+
+        <div class="dashboard">
+            <div class="camera-card">
+                <h3>Live AI Recognition</h3>
+                <div class="video-box">
+                    <div class="scanner-line"></div>
+                    <video id="webcam" autoplay playsinline></video>
+                </div>
+                
+                <div id="matchDisplay">
+                    <h4 style="color: #00ff00;">MATCH FOUND: <span id="detectedName"></span></h4>
+                    <p style="font-size: 12px; color: #aaa;">Syncing with Raspberry Pi Hardware...</p>
+                </div>
+
+                <button class="btn-open" onclick="simulateRecognition()">VERIFY & OPEN GATE</button>
+            </div>
+
+            <div class="dataset-card">
+                <h3>Authorized Dataset (Soft Copy)</h3>
+                <div class="student-list" id="studentDataset">
+                    <div class="student-item" onclick="selectStudent('Suhani Ghadge', 'https://i.pravatar.cc/150?u=suhani')">
+                        <img src="https://i.pravatar.cc/150?u=suhani" alt="1">
+                        <div>
+                            <p><strong>Suhani Ghadge</strong></p>
+                            <p style="font-size: 11px; color: #888;">ID: JSPM-H01</p>
+                        </div>
+                    </div>
+                    <div class="student-item" onclick="selectStudent('Priyanka Tambe', 'https://i.pravatar.cc/150?u=priyanka')">
+                        <img src="https://i.pravatar.cc/150?u=priyanka" alt="2">
+                        <div>
+                            <p><strong>Priyanka Tambe</strong></p>
+                            <p style="font-size: 11px; color: #888;">ID: JSPM-H02</p>
+                        </div>
+                    </div>
+                    <div class="student-item" onclick="selectStudent('Tanushree Sangadee', 'https://i.pravatar.cc/150?u=tanu')">
+                        <img src="https://i.pravatar.cc/150?u=tanu" alt="3">
+                        <div>
+                            <p><strong>Tanushree Sangadee</strong></p>
+                            <p style="font-size: 11px; color: #888;">ID: JSPM-H03</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
+                    <h4>Hardware Logs:</h4>
+                    <div id="hwLogs" style="font-family: monospace; font-size: 12px; color: #00ff00; margin-top: 10px;">
+                        > Waiting for trigger...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Open Web Camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { document.getElementById('webcam').srcObject = stream; })
+            .catch(err => { console.error("Camera error: ", err); });
+
+        let currentSelection = "Suhani Ghadge";
+
+        function selectStudent(name, img) {
+            currentSelection = name;
+            alert("Model set to recognize: " + name);
+        }
+
+        function simulateRecognition() {
+            const display = document.getElementById('matchDisplay');
+            const nameField = document.getElementById('detectedName');
+            const logs = document.getElementById('hwLogs');
+
+            // 1. Show Match in UI
+            nameField.innerText = currentSelection;
+            display.style.display = 'block';
+
+            // 2. Simulate Hardware Process (Raspberry Pi -> Arduino)
+            logs.innerHTML = "> AI Match Confirmed...<br>";
+            setTimeout(() => {
+                logs.innerHTML += "> Sending Signal to Raspberry Pi...<br>";
+                setTimeout(() => {
+                    logs.innerHTML += "> Arduino: PIN Requested...<br>";
+                    setTimeout(() => {
+                        logs.innerHTML += `> LCD: ${currentSelection} - PRESENT<br>`;
+                        logs.innerHTML += "> <strong>GATE STATUS: OPENED</strong>";
+                        alert("Hardware Command Success!\nLCD: " + currentSelection + "\nGate: OPEN");
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

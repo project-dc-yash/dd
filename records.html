@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeHostel | Student Records & AI Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #00d2ff; 
+            --accent: #3a7bd5; 
+            --dark: #0f172a; 
+            --card: #1e293b; 
+            --success: #00ff00;
+            --danger: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { background: var(--dark); color: white; display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { width: 260px; background: #000; border-right: 1px solid #333; display: flex; flex-direction: column; padding: 20px; }
+        .logo { font-size: 22px; font-weight: 600; margin-bottom: 40px; color: var(--primary); text-align: center; letter-spacing: 1px; }
+        .nav-item { padding: 14px; margin-bottom: 10px; cursor: pointer; border-radius: 10px; color: #888; text-decoration: none; display: block; transition: 0.3s; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .nav-item.active { background: var(--primary); color: #000; font-weight: 600; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .navbar { height: 70px; background: #111; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; border-bottom: 1px solid #333; }
+        .container { padding: 30px; }
+
+        /* --- UI COMPONENTS --- */
+        .search-container { margin-bottom: 30px; display: flex; gap: 15px; }
+        .search-bar { flex: 1; padding: 12px 20px; background: var(--card); border: 1px solid #334155; border-radius: 10px; color: white; outline: none; }
+        .section-title { margin-bottom: 20px; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        .record-card { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #334155; margin-bottom: 30px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: var(--primary); padding: 15px; border-bottom: 2px solid #334155; font-size: 13px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #334155; font-size: 14px; }
+
+        .student-profile { display: flex; align-items: center; gap: 12px; }
+        .student-profile img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+        .status-pill { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-in { background: rgba(0, 255, 0, 0.1); color: var(--success); }
+        .status-out { background: rgba(255, 0, 0, 0.1); color: var(--danger); }
+
+        .btn-action { padding: 8px 16px; background: transparent; border: 1px solid var(--primary); color: var(--primary); border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: 600; }
+        .btn-action:hover { background: var(--primary); color: black; }
+
+        /* --- REGISTRATION MODAL --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 2000; }
+        .reg-container { background: var(--card); padding: 30px; border-radius: 20px; width: 500px; border: 1px solid var(--primary); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .camera-view { width: 100%; height: 300px; background: #000; border-radius: 15px; overflow: hidden; position: relative; border: 2px solid #333; margin-bottom: 20px; }
+        #regCam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .scan-overlay { position: absolute; top: 10%; left: 10%; width: 80%; height: 80%; border: 2px dashed rgba(0, 210, 255, 0.5); pointer-events: none; }
+        #photoPreview { display:none; width:100%; height:100%; object-fit:cover; border-radius: 15px; }
+        
+        .modal-input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; margin-bottom: 15px; outline: none; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn-save { background: var(--success); color: #000; display: none; border:none;}
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">SafeHostel AI</div>
+        <a href="index.html" class="nav-item">Gate Terminal</a>
+        <a href="#" class="nav-item active">JSPM Records</a>
+        <a href="hardware.html" class="nav-item">Hardware: Pi/Arduino</a>
+    </aside>
+
+    <div class="main-content">
+        <nav class="navbar">
+            <div>JSPM Narhe | <strong>Student Database</strong></div>
+            <div style="font-size: 13px; opacity: 0.7;">System Status: Secure</div>
+        </nav>
+
+        <div class="container">
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Search students...">
+                <button class="btn-action" style="background: var(--primary); color: black;" onclick="openRegistration()">+ Add Student</button>
+            </div>
+
+            <div class="section-title"><span>📂</span> Registered Student Dataset</div>
+            <div class="record-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Roll Number</th>
+                            <th>Room No.</th>
+                            <th>AI Model</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <tr>
+                            <td><div class="student-profile"><img src="https://i.pravatar.cc/150?u=suhani"><span>Suhani Ghadge</span></div></td>
+                            <td>JSPM-2026-01</td>
+                            <td>B-101</td>
+                            <td style="color: var(--success);">● Optimized</td>
+                            <td><button class="btn-action">View</button></td>
+                        </tr>
+                        <tr>
+                            <td><div class="student-profile"><img src="https://i.pravatar.cc/150?u=priyanka"><span>Priyanka Tambe</span></div></td>
+                            <td>JSPM-2026-02</td>
+                            <td>B-102</td>
+                            <td style="color: var(--success);">● Optimized</td>
+                            <td><button class="btn-action">View</button></td>
+                        </tr>
+                        <tr>
+                            <td><div class="student-profile"><img src="https://i.pravatar.cc/150?u=tanu"><span>Tanushree Sangadee</span></div></td>
+                            <td>JSPM-2026-03</td>
+                            <td>B-103</td>
+                            <td style="color: var(--success);">● Optimized</td>
+                            <td><button class="btn-action">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="regModal" class="modal">
+        <div class="reg-container">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <h2 style="color: var(--primary);">AI Face Registration</h2>
+                <p style="font-size: 11px; opacity: 0.6;">Align face within the dashed box</p>
+            </div>
+
+            <div class="camera-view">
+                <video id="regCam" autoplay playsinline></video>
+                <div class="scan-overlay"></div>
+                <img id="photoPreview">
+            </div>
+
+            <input type="text" id="stuName" class="modal-input" placeholder="Enter Full Name">
+            <input type="text" id="stuRoll" class="modal-input" placeholder="Enter Roll Number">
+
+            <div class="btn-group">
+                <button class="btn-action" id="capBtn" onclick="capturePhoto()" style="flex:1">📸 Capture</button>
+                <button class="btn-action btn-save" id="saveBtn" onclick="saveStudent()" style="flex:1">💾 Save to AI</button>
+                <button class="btn-action" onclick="closeRegistration()" style="border-color: var(--danger); color: var(--danger);">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="hiddenCanvas" style="display:none;"></canvas>
+
+    <script>
+        let videoStream;
+        const modal = document.getElementById('regModal');
+        const video = document.getElementById('regCam');
+        const preview = document.getElementById('photoPreview');
+        const capBtn = document.getElementById('capBtn');
+        const saveBtn = document.getElementById('saveBtn');
+
+        async function openRegistration() {
+            modal.style.display = 'flex';
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = videoStream;
+            } catch (err) {
+                alert("Please allow camera access!");
+            }
+        }
+
+        function capturePhoto() {
+            const canvas = document.getElementById('hiddenCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const dataURL = canvas.toDataURL('image/png');
+            preview.src = dataURL;
+            
+            video.style.display = 'none';
+            preview.style.display = 'block';
+            capBtn.innerText = "🔄 Retake";
+            saveBtn.style.display = 'block';
+        }
+
+        function saveStudent() {
+            const name = document.getElementById('stuName').value;
+            const roll = document.getElementById('stuRoll').value;
+            const imgData = preview.src;
+
+            if(!name || !roll) { alert("Fill all details!"); return; }
+
+            const table = document.getElementById('studentTableBody');
+            const newRow = table.insertRow(0);
+            newRow.innerHTML = `
+                <td><div class="student-profile"><img src="${imgData}"><span>${name}</span></div></td>
+                <td>${roll}</td>
+                <td>TBD</td>
+                <td style="color: var(--success);">● Training...</td>
+                <td><button class="btn-action">View</button></td>
+            `;
+
+            alert("Student Profile Created for " + name);
+            closeRegistration();
+        }
+
+        function closeRegistration() {
+            if(videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            modal.style.display = 'none';
+            video.style.display = 'block';
+            preview.style.display = 'none';
+            saveBtn.style.display = 'none';
+            capBtn.innerText = "📸 Capture";
+            document.getElementById('stuName').value = "";
+            document.getElementById('stuRoll').value = "";
+        }
+    </script>
+</body>
+</html>
